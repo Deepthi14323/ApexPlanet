@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Full Project Implementation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+    }
+    header {
+      background: #222;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    nav {
+      background: #444;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 1rem;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+    }
+    section {
+      padding: 2rem;
+      display: none;
+    }
+    section.active {
+      display: block;
+    }
+    input, button, select {
+      margin: 5px;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>My Full Project Implementation</h1>
+</header>
+
+<nav>
+  <a href="#" onclick="showSection('portfolio')">Portfolio</a>
+  <a href="#" onclick="showSection('todo')">To-Do App</a>
+  <a href="#" onclick="showSection('products')">Product Page</a>
+</nav>
+
+<!-- 1. Portfolio Section -->
+<section id="portfolio" class="active">
+  <h2>About Me</h2>
+  <p>Hello! I'm a passionate web developer.</p>
+
+  <h2>Projects</h2>
+  <ul>
+    <li>To-Do App with Local Storage</li>
+    <li>Product Listing Page</li>
+  </ul>
+
+  <h2>Contact</h2>
+  <p>Email: example@email.com</p>
+</section>
+
+<!-- 2. To-Do App Section -->
+<section id="todo">
+  <h2>To-Do List</h2>
+  <input type="text" id="taskInput" placeholder="Enter a task"/>
+  <button onclick="addTask()">Add Task</button>
+  <ul id="taskList"></ul>
+</section>
+
+<!-- 3. Product Listing Section -->
+<section id="products">
+  <h2>Product Listing</h2>
+  <label>Filter by Category:</label>
+  <select id="filter" onchange="renderProducts()">
+    <option value="all">All</option>
+    <option value="electronics">Electronics</option>
+    <option value="clothing">Clothing</option>
+  </select>
+
+  <label>Sort by Rating:</label>
+  <select id="sort" onchange="renderProducts()">
+    <option value="desc">High to Low</option>
+    <option value="asc">Low to High</option>
+  </select>
+
+  <div id="productList"></div>
+</section>
+
+<script>
+  // Section Switcher
+  function showSection(id) {
+    document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // To-Do App Logic
+  const taskInput = document.getElementById("taskInput");
+  const taskList = document.getElementById("taskList");
+
+  function loadTasks() {
+    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    taskList.innerHTML = "";
+    tasks.forEach((task, index) => {
+      const li = document.createElement("li");
+      li.textContent = task;
+      li.onclick = () => {
+        tasks.splice(index, 1);
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        loadTasks();
+      };
+      taskList.appendChild(li);
+    });
+  }
+
+  function addTask() {
+    const task = taskInput.value.trim();
+    if (task) {
+      const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+      tasks.push(task);
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+      taskInput.value = "";
+      loadTasks();
+    }
+  }
+
+  loadTasks();
+
+  // Product Listing Logic
+  const products = [
+    { name: "Phone", category: "electronics", rating: 4.5 },
+    { name: "Shirt", category: "clothing", rating: 3.8 },
+    { name: "Laptop", category: "electronics", rating: 4.8 },
+    { name: "Jacket", category: "clothing", rating: 4.2 }
+  ];
+
+  function renderProducts() {
+    const filter = document.getElementById("filter").value;
+    const sort = document.getElementById("sort").value;
+    let filtered = [...products];
+
+    if (filter !== "all") {
+      filtered = filtered.filter(p => p.category === filter);
+    }
+
+    filtered.sort((a, b) =>
+      sort === "asc" ? a.rating - b.rating : b.rating - a.rating
+    );
+
+    const container = document.getElementById("productList");
+    container.innerHTML = "";
+    filtered.forEach(p => {
+      const div = document.createElement("div");
+      div.innerHTML = <strong>${p.name}</strong> (${p.category}) - Rating: ${p.rating};
+      container.appendChild(div);
+    });
+  }
+
+  renderProducts();
+</script>
+</body>
+</html>
